@@ -15,7 +15,8 @@ import type {
   Review,
   Attendance,
   Commission,
-  WaitList
+  WaitList,
+  CustomerPackage
 } from '../types';
 import {
   mockCustomers,
@@ -32,7 +33,8 @@ import {
   mockReviews,
   mockAttendance,
   mockCommissions,
-  mockWaitList
+  mockWaitList,
+  mockCustomerPackages
 } from '../mock';
 
 interface AppState {
@@ -45,6 +47,7 @@ interface AppState {
   packageItems: PackageItem[];
   employees: Employee[];
   appointments: Appointment[];
+  customerPackages: CustomerPackage[];
   serviceRecords: ServiceRecord[];
   schedules: Schedule[];
   reviews: Review[];
@@ -84,6 +87,7 @@ const loadState = (): AppState => {
   const employees = mockEmployees() as Employee[];
   const employeeIds = employees.map(e => e.id);
   const packages = mockPackages() as Package[];
+  const packageItems = mockPackageItems(packages);
 
   return {
     customers,
@@ -92,9 +96,10 @@ const loadState = (): AppState => {
     memberships: mockMemberships(customerIds),
     services,
     packages,
-    packageItems: mockPackageItems(packages),
+    packageItems,
     employees,
     appointments: mockAppointments(customerIds, serviceIds, employeeIds),
+    customerPackages: mockCustomerPackages(customerIds, packages, packageItems),
     serviceRecords: mockServiceRecords(customerIds, serviceIds, employeeIds),
     schedules: mockSchedules(employeeIds),
     reviews: mockReviews(customerIds, employeeIds, serviceIds),
@@ -237,6 +242,39 @@ const appSlice = createSlice({
         else if (membership.totalSpent > 5000) membership.level = 'silver';
       }
       saveState(state);
+    },
+    addCustomerPackage: (state, action: PayloadAction<CustomerPackage>) => {
+      state.customerPackages.unshift(action.payload);
+      saveState(state);
+    },
+    updateCustomerPackage: (state, action: PayloadAction<CustomerPackage>) => {
+      const index = state.customerPackages.findIndex(cp => cp.id === action.payload.id);
+      if (index !== -1) {
+        state.customerPackages[index] = action.payload;
+        saveState(state);
+      }
+    },
+    addMultipleAppointments: (state, action: PayloadAction<Appointment[]>) => {
+      state.appointments.unshift(...action.payload);
+      saveState(state);
+    },
+    updateMembershipPoints: (state, action: PayloadAction<{ customerId: string; pointsDelta: number }>) => {
+      const membership = state.memberships.find(m => m.customerId === action.payload.customerId);
+      if (membership) {
+        membership.points = Math.max(0, membership.points + action.payload.pointsDelta);
+        saveState(state);
+      }
+    },
+    consumePackageCount: (state, action: PayloadAction<{ customerPackageId: string; serviceId: string; count: number }>) => {
+      const pkg = state.customerPackages.find(cp => cp.id === action.payload.customerPackageId);
+      if (pkg && pkg.remainingCounts[action.payload.serviceId] !== undefined) {
+        pkg.remainingCounts[action.payload.serviceId] = Math.max(0, pkg.remainingCounts[action.payload.serviceId] - action.payload.count);
+        const allUsed = Object.values(pkg.remainingCounts).every(v => v === 0);
+        if (allUsed) {
+          pkg.status = 'used_up';
+        }
+        saveState(state);
+      }
     }
   }
 });
@@ -257,13 +295,18 @@ export const {
   addAppointment,
   updateAppointment,
   deleteAppointment,
+  addMultipleAppointments,
   addEmployee,
   updateEmployee,
   updateSchedule,
   addWaitList,
   updateWaitList,
   deleteWaitList,
-  addServiceRecord
+  addServiceRecord,
+  addCustomerPackage,
+  updateCustomerPackage,
+  updateMembershipPoints,
+  consumePackageCount
 } = appSlice.actions;
 
 export const store = configureStore({

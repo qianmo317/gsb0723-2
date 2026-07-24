@@ -134,26 +134,26 @@ export const mockMemberships = (customerIds: string[]) => {
 
 export const mockServices = () => {
   const services = [
-    { id: 'S001', name: '深层清洁护理', category: '面部护理', duration: 60, price: 388, description: '深层清洁毛孔，去除角质和黑头', suitableSkin: ['油性', '混合性'], effectDescription: '毛孔清爽，肌肤透亮', imageUrl: '' },
-    { id: 'S002', name: '补水保湿护理', category: '面部护理', duration: 75, price: 488, description: '深层补水，锁住水分', suitableSkin: ['干性', '中性'], effectDescription: '水润饱满，弹性十足', imageUrl: '' },
-    { id: 'S003', name: '美白焕肤护理', category: '面部护理', duration: 90, price: 688, description: '淡化色斑，提亮肤色', suitableSkin: ['中性', '混合性'], effectDescription: '肤色均匀，透亮白皙', imageUrl: '' },
-    { id: 'S004', name: '抗衰紧致护理', category: '面部护理', duration: 90, price: 888, description: '提升紧致，减淡细纹', suitableSkin: ['中性', '干性'], effectDescription: '紧致提拉，年轻焕发', imageUrl: '' },
-    { id: 'S005', name: '敏感肌舒缓护理', category: '面部护理', duration: 60, price: 458, description: '舒缓镇静，修复屏障', suitableSkin: ['敏感肌'], effectDescription: '舒缓镇静，屏障修复', imageUrl: '' },
-    { id: 'S006', name: '黄金焕肤护理', category: '面部护理', duration: 120, price: 1288, description: '黄金精华导入，奢华护理', suitableSkin: ['中性', '干性'], effectDescription: '奢华滋养，焕发光彩', imageUrl: '' },
-    { id: 'S007', name: '眼部护理', category: '眼部护理', duration: 45, price: 288, description: '淡化黑眼圈，减淡细纹', suitableSkin: ['中性', '干性', '混合性'], effectDescription: '明眸亮彩，减淡细纹', imageUrl: '' },
-    { id: 'S008', name: '颈肩舒缓按摩', category: '身体护理', duration: 60, price: 358, description: '舒缓颈肩疲劳，放松肌肉', suitableSkin: ['中性', '干性', '油性', '混合性', '敏感肌'], effectDescription: '舒缓放松，缓解疲劳', imageUrl: '' },
-    { id: 'S009', name: '全身芳香SPA', category: '身体护理', duration: 90, price: 688, description: '精油按摩，身心放松', suitableSkin: ['中性', '干性', '油性', '混合性'], effectDescription: '身心放松，焕活能量', imageUrl: '' },
-    { id: 'S010', name: '身体去角质', category: '身体护理', duration: 60, price: 388, description: '去除死皮，嫩滑肌肤', suitableSkin: ['中性', '干性', '油性', '混合性'], effectDescription: '肌肤嫩滑，焕然一新', imageUrl: '' },
-    { id: 'S011', name: '纤体塑形', category: '身体护理', duration: 90, price: 788, description: '塑形紧致，纤体美肤', suitableSkin: ['中性', '干性', '混合性'], effectDescription: '紧致塑形，体态优美', imageUrl: '' },
-    { id: 'S012', name: '胸部护理', category: '身体护理', duration: 60, price: 488, description: '胸部保养，提升紧实', suitableSkin: ['中性', '干性'], effectDescription: '紧实提升，健康美丽', imageUrl: '' },
-    { id: 'S013', name: '头皮护理', category: '头发护理', duration: 45, price: 258, description: '深层清洁头皮，舒缓头皮', suitableSkin: ['中性', '干性', '油性'], effectDescription: '头皮清爽，秀发健康', imageUrl: '' },
-    { id: 'S014', name: '毛囊修护护理', category: '头发护理', duration: 60, price: 388, description: '修护毛囊，强韧发根', suitableSkin: ['中性', '干性', '油性'], effectDescription: '强韧发根，减少脱发', imageUrl: '' },
-    { id: 'S015', name: '美甲护理', category: '美甲', duration: 45, price: 128, description: '指甲保养，美化指甲', suitableSkin: ['中性', '干性', '油性', '混合性', '敏感肌'], effectDescription: '指甲美丽，双手迷人', imageUrl: '' },
-    { id: 'S016', name: '光疗美甲', category: '美甲', duration: 60, price: 258, description: '持久光疗，色彩亮丽', suitableSkin: ['中性', '干性', '油性', '混合性'], effectDescription: '持久亮丽，时尚美丽', imageUrl: '' },
-    { id: 'S017', name: '脱毛护理', category: '脱毛', duration: 30, price: 198, description: '腋下脱毛，光滑肌肤', suitableSkin: ['中性', '干性', '油性', '混合性'], effectDescription: '光滑如丝，美丽无瑕', imageUrl: '' },
-    { id: 'S018', name: '全身脱毛', category: '脱毛', duration: 120, price: 888, description: '全身脱毛，彻底光滑', suitableSkin: ['中性', '干性', '混合性'], effectDescription: '全身光滑，美丽无瑕', imageUrl: '' },
-    { id: 'S019', name: '肩颈背按摩', category: '身体护理', duration: 45, price: 298, description: '肩颈背按摩，缓解疲劳', suitableSkin: ['中性', '干性', '油性', '混合性', '敏感肌'], effectDescription: '疲劳缓解，身心舒畅', imageUrl: '' },
-    { id: 'S020', name: '面部刮痧', category: '面部护理', duration: 45, price: 328, description: '面部刮痧，促进循环', suitableSkin: ['中性', '干性', '混合性'], effectDescription: '促进循环，焕发光彩', imageUrl: '' }
+    { id: 'S001', name: '深层清洁护理', category: '面部护理', duration: 60, price: 388, description: '深层清洁毛孔，去除角质和黑头', suitableSkin: ['油性', '混合性'], effectDescription: '毛孔清爽，肌肤透亮', imageUrl: '', isAdvanced: false, contraindications: ['敏感肌急性发作期', '皮肤破损'] },
+    { id: 'S002', name: '补水保湿护理', category: '面部护理', duration: 75, price: 488, description: '深层补水，锁住水分', suitableSkin: ['干性', '中性'], effectDescription: '水润饱满，弹性十足', imageUrl: '', isAdvanced: false, contraindications: ['严重痤疮炎症期'] },
+    { id: 'S003', name: '美白焕肤护理', category: '面部护理', duration: 90, price: 688, description: '淡化色斑，提亮肤色', suitableSkin: ['中性', '混合性'], effectDescription: '肤色均匀，透亮白皙', imageUrl: '', isAdvanced: true, contraindications: ['敏感肌', '皮肤破损', '近期暴晒'] },
+    { id: 'S004', name: '抗衰紧致护理', category: '面部护理', duration: 90, price: 888, description: '提升紧致，减淡细纹', suitableSkin: ['中性', '干性'], effectDescription: '紧致提拉，年轻焕发', imageUrl: '', isAdvanced: true, contraindications: ['皮肤炎症', '填充术后3个月内'] },
+    { id: 'S005', name: '敏感肌舒缓护理', category: '面部护理', duration: 60, price: 458, description: '舒缓镇静，修复屏障', suitableSkin: ['敏感肌'], effectDescription: '舒缓镇静，屏障修复', imageUrl: '', isAdvanced: false, contraindications: [] },
+    { id: 'S006', name: '黄金焕肤护理', category: '面部护理', duration: 120, price: 1288, description: '黄金精华导入，奢华护理', suitableSkin: ['中性', '干性'], effectDescription: '奢华滋养，焕发光彩', imageUrl: '', isAdvanced: true, contraindications: ['金属过敏', '敏感肌', '皮肤破损'] },
+    { id: 'S007', name: '眼部护理', category: '眼部护理', duration: 45, price: 288, description: '淡化黑眼圈，减淡细纹', suitableSkin: ['中性', '干性', '混合性'], effectDescription: '明眸亮彩，减淡细纹', imageUrl: '', isAdvanced: false, contraindications: ['眼部炎症', '眼部术后恢复期'] },
+    { id: 'S008', name: '颈肩舒缓按摩', category: '身体护理', duration: 60, price: 358, description: '舒缓颈肩疲劳，放松肌肉', suitableSkin: ['中性', '干性', '油性', '混合性', '敏感肌'], effectDescription: '舒缓放松，缓解疲劳', imageUrl: '', isAdvanced: false, contraindications: ['颈椎病急性期', '皮肤破损'] },
+    { id: 'S009', name: '全身芳香SPA', category: '身体护理', duration: 90, price: 688, description: '精油按摩，身心放松', suitableSkin: ['中性', '干性', '油性', '混合性'], effectDescription: '身心放松，焕活能量', imageUrl: '', isAdvanced: false, contraindications: ['精油过敏', '孕期', '严重皮肤病'] },
+    { id: 'S010', name: '身体去角质', category: '身体护理', duration: 60, price: 388, description: '去除死皮，嫩滑肌肤', suitableSkin: ['中性', '干性', '油性', '混合性'], effectDescription: '肌肤嫩滑，焕然一新', imageUrl: '', isAdvanced: false, contraindications: ['皮肤破损', '敏感肌', '炎症期'] },
+    { id: 'S011', name: '纤体塑形', category: '身体护理', duration: 90, price: 788, description: '塑形紧致，纤体美肤', suitableSkin: ['中性', '干性', '混合性'], effectDescription: '紧致塑形，体态优美', imageUrl: '', isAdvanced: true, contraindications: ['孕期', '心脏病', '皮肤炎症'] },
+    { id: 'S012', name: '胸部护理', category: '身体护理', duration: 60, price: 488, description: '胸部保养，提升紧实', suitableSkin: ['中性', '干性'], effectDescription: '紧实提升，健康美丽', imageUrl: '', isAdvanced: true, contraindications: ['孕期', '哺乳期', '乳腺疾病'] },
+    { id: 'S013', name: '头皮护理', category: '头发护理', duration: 45, price: 258, description: '深层清洁头皮，舒缓头皮', suitableSkin: ['中性', '干性', '油性'], effectDescription: '头皮清爽，秀发健康', imageUrl: '', isAdvanced: false, contraindications: ['头皮破损', '严重脱发期'] },
+    { id: 'S014', name: '毛囊修护护理', category: '头发护理', duration: 60, price: 388, description: '修护毛囊，强韧发根', suitableSkin: ['中性', '干性', '油性'], effectDescription: '强韧发根，减少脱发', imageUrl: '', isAdvanced: false, contraindications: ['头皮炎症', '头皮破损'] },
+    { id: 'S015', name: '美甲护理', category: '美甲', duration: 45, price: 128, description: '指甲保养，美化指甲', suitableSkin: ['中性', '干性', '油性', '混合性', '敏感肌'], effectDescription: '指甲美丽，双手迷人', imageUrl: '', isAdvanced: false, contraindications: ['指甲真菌感染', '指甲破损'] },
+    { id: 'S016', name: '光疗美甲', category: '美甲', duration: 60, price: 258, description: '持久光疗，色彩亮丽', suitableSkin: ['中性', '干性', '油性', '混合性'], effectDescription: '持久亮丽，时尚美丽', imageUrl: '', isAdvanced: false, contraindications: ['指甲真菌感染', '指甲破损', '紫外线过敏'] },
+    { id: 'S017', name: '脱毛护理', category: '脱毛', duration: 30, price: 198, description: '腋下脱毛，光滑肌肤', suitableSkin: ['中性', '干性', '油性', '混合性'], effectDescription: '光滑如丝，美丽无瑕', imageUrl: '', isAdvanced: false, contraindications: ['皮肤破损', '炎症期', '近期暴晒'] },
+    { id: 'S018', name: '全身脱毛', category: '脱毛', duration: 120, price: 888, description: '全身脱毛，彻底光滑', suitableSkin: ['中性', '干性', '混合性'], effectDescription: '全身光滑，美丽无瑕', imageUrl: '', isAdvanced: true, contraindications: ['皮肤破损', '炎症期', '近期暴晒', '光过敏'] },
+    { id: 'S019', name: '肩颈背按摩', category: '身体护理', duration: 45, price: 298, description: '肩颈背按摩，缓解疲劳', suitableSkin: ['中性', '干性', '油性', '混合性', '敏感肌'], effectDescription: '疲劳缓解，身心舒畅', imageUrl: '', isAdvanced: false, contraindications: ['颈椎病急性期', '皮肤破损', '骨质疏松严重'] },
+    { id: 'S020', name: '面部刮痧', category: '面部护理', duration: 45, price: 328, description: '面部刮痧，促进循环', suitableSkin: ['中性', '干性', '混合性'], effectDescription: '促进循环，焕发光彩', imageUrl: '', isAdvanced: false, contraindications: ['敏感肌', '皮肤破损', '痤疮炎症期'] }
   ];
   return services.map(s => ({ ...s, status: 'active' }));
 };
@@ -416,4 +416,47 @@ export const mockWaitList = (customerIds: string[], serviceIds: string[]) => {
     });
   }
   return waitList;
+};
+
+export const mockCustomerPackages = (customerIds: string[], packages: ReturnType<typeof mockPackages>, packageItems: ReturnType<typeof mockPackageItems>) => {
+  const customerPackages = [];
+  const usedCustomers = new Set<string>();
+
+  for (let i = 0; i < 25; i++) {
+    let customerId;
+    do {
+      customerId = customerIds[Random.integer(0, customerIds.length - 1)];
+    } while (usedCustomers.has(customerId) && usedCustomers.size < customerIds.length);
+    usedCustomers.add(customerId);
+
+    const pkg = packages[Random.integer(0, packages.length - 1)];
+    const items = packageItems.filter(pi => pi.packageId === pkg.id);
+    const remainingCounts: Record<string, number> = {};
+
+    const purchaseDate = new Date();
+    purchaseDate.setDate(purchaseDate.getDate() - Random.integer(0, 60));
+    const expireDate = new Date(purchaseDate);
+    expireDate.setDate(expireDate.getDate() + pkg.validityDays);
+
+    items.forEach(item => {
+      const used = Random.integer(0, item.count);
+      remainingCounts[item.serviceId] = Math.max(0, item.count - used);
+    });
+
+    const isExpired = expireDate < new Date();
+    const isUsedUp = Object.values(remainingCounts).every(v => v === 0);
+
+    customerPackages.push({
+      id: `CP${String(i + 1).padStart(6, '0')}`,
+      customerId,
+      packageId: pkg.id,
+      purchaseDate: purchaseDate.toISOString(),
+      expireDate: expireDate.toISOString(),
+      remainingCounts,
+      originalPrice: pkg.originalPrice,
+      paidPrice: pkg.price,
+      status: isExpired ? 'expired' : isUsedUp ? 'used_up' : 'active'
+    });
+  }
+  return customerPackages;
 };
