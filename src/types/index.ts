@@ -65,6 +65,8 @@ export interface Service {
   effectDescription: string;
   imageUrl: string;
   status: 'active' | 'inactive';
+  isAdvanced: boolean;
+  contraindications: string[];
 }
 
 export interface Package {
@@ -85,6 +87,20 @@ export interface PackageItem {
   count: number;
 }
 
+export interface AppointmentPriceItem {
+  serviceId: string;
+  serviceName: string;
+  originalPrice: number;
+  memberDiscount: number;
+  memberLevel: string;
+  packageDiscount: number;
+  packageId?: string;
+  pointsDiscount: number;
+  pointsUsed: number;
+  finalPrice: number;
+  appliedDiscount: 'none' | 'member' | 'package' | 'points';
+}
+
 export interface Appointment {
   id: string;
   customerId: string;
@@ -97,6 +113,15 @@ export interface Appointment {
   source: 'phone' | 'wechat' | 'walk_in' | 'online';
   notes: string;
   reminderSent: boolean;
+  priceItems?: AppointmentPriceItem[];
+  totalOriginalPrice?: number;
+  totalDiscount?: number;
+  totalFinalPrice?: number;
+  needsReceptionConfirm?: boolean;
+  healthWarnings?: string[];
+  isMultiService?: boolean;
+  multiServiceGroupId?: string;
+  multiServiceIndex?: number;
 }
 
 export interface WaitList {
@@ -176,3 +201,100 @@ export interface TodayAppointment {
   time: string;
   status: string;
 }
+
+export interface CustomerPackage {
+  id: string;
+  customerId: string;
+  packageId: string;
+  purchaseDate: string;
+  expireDate: string;
+  remainingCounts: Record<string, number>;
+  originalPrice: number;
+  paidPrice: number;
+  status: 'active' | 'expired' | 'used_up';
+}
+
+export interface AppointmentItem {
+  serviceId: string;
+  employeeId?: string;
+  startTime: string;
+  endTime: string;
+  duration: number;
+  usePackage: boolean;
+  packageId?: string;
+  usePoints: boolean;
+  pointsUsed: number;
+  discountAmount: number;
+  finalPrice: number;
+  notes: string;
+}
+
+export interface ValidationWarning {
+  level: 'info' | 'warning' | 'error' | 'critical';
+  code: string;
+  message: string;
+  data?: Record<string, unknown>;
+}
+
+export interface EmployeeRecommendation {
+  employeeId: string;
+  employeeName: string;
+  score: number;
+  reasons: string[];
+  available: boolean;
+  conflictTime?: { start: string; end: string };
+}
+
+export type PriceBreakdownItem = AppointmentPriceItem;
+
+export interface PriceCalculationResult {
+  items: PriceBreakdownItem[];
+  totalOriginal: number;
+  totalMemberDiscount: number;
+  totalPackageDiscount: number;
+  totalPointsDiscount: number;
+  totalDiscount: number;
+  totalFinal: number;
+  pointsRemaining: number;
+  pointsBlocked: boolean;
+  warnings: ValidationWarning[];
+}
+
+export interface TimeSlotResult {
+  items: AppointmentItem[];
+  totalDuration: number;
+  totalBufferTime: number;
+  startTime: string;
+  endTime: string;
+  warnings: ValidationWarning[];
+}
+
+export interface SmartValidationResult {
+  valid: boolean;
+  warnings: ValidationWarning[];
+  employeeRecommendations: EmployeeRecommendation[];
+  priceCalculation: PriceCalculationResult;
+  timeSlot: TimeSlotResult;
+  healthAlerts: string[];
+  needsReceptionConfirm: boolean;
+  pointsBlocked: boolean;
+  suggestedAppointments: Appointment[];
+}
+
+export interface MembershipDiscountRule {
+  level: 'bronze' | 'silver' | 'gold' | 'platinum' | 'diamond';
+  discountRate: number;
+  pointsRate: number;
+}
+
+export const MEMBERSHIP_DISCOUNT_RULES: MembershipDiscountRule[] = [
+  { level: 'bronze', discountRate: 1.0, pointsRate: 1 },
+  { level: 'silver', discountRate: 0.95, pointsRate: 1.1 },
+  { level: 'gold', discountRate: 0.9, pointsRate: 1.2 },
+  { level: 'platinum', discountRate: 0.85, pointsRate: 1.5 },
+  { level: 'diamond', discountRate: 0.8, pointsRate: 2 },
+];
+
+export const POINTS_VALUE = 0.01;
+export const BUFFER_TIME_MINUTES = 15;
+export const NO_SHOW_LIMIT_FOR_DIAMOND = 2;
