@@ -176,3 +176,90 @@ export interface TodayAppointment {
   time: string;
   status: string;
 }
+
+export interface CustomerPackageItem {
+  serviceId: string;
+  totalCount: number;
+  usedCount: number;
+  remainingCount: number;
+}
+
+export interface CustomerPackage {
+  id: string;
+  customerId: string;
+  packageId: string;
+  purchaseDate: string;
+  expireDate: string;
+  remainingItems: CustomerPackageItem[];
+  status: 'active' | 'expired' | 'exhausted';
+}
+
+export type ValidationSeverity = 'error' | 'warning' | 'info';
+
+export interface ValidationIssue {
+  code: string;
+  severity: ValidationSeverity;
+  message: string;
+  field?: string;
+}
+
+export interface BookingServiceItem {
+  serviceId: string;
+  employeeId?: string;
+}
+
+export interface ServicePriceBreakdown {
+  serviceId: string;
+  serviceName: string;
+  originalPrice: number;
+  memberDiscountRate: number;
+  memberDiscountedPrice: number;
+  packageDeduction: number;
+  pointsDeduction: number;
+  finalPrice: number;
+  usedDiscountType: 'package' | 'points' | 'none';
+  packageId?: string;
+  packageName?: string;
+  customerPackageId?: string;
+  splitFromPackage: boolean;
+  splitReason?: 'expired' | 'insufficient_sessions';
+}
+
+export interface BeauticianSuggestion {
+  employeeId: string;
+  employeeName: string;
+  reason: 'preferred' | 'skill_match' | 'available';
+  score: number;
+  coversAllItems?: boolean;
+}
+
+export interface ScheduledBookingItem {
+  serviceId: string;
+  serviceName: string;
+  employeeId: string;
+  employeeName: string;
+  startTime: string;
+  endTime: string;
+  duration: number;
+  bufferAfter: number;
+}
+
+export interface BookingValidationResult {
+  valid: boolean;
+  canWaitlist: boolean;
+  conflictItemIndexes: number[];
+  errors: ValidationIssue[];
+  warnings: ValidationIssue[];
+  infos: ValidationIssue[];
+  suggestedEmployees: BeauticianSuggestion[];
+  pricing: ServicePriceBreakdown[];
+  totalPrice: number;
+  totalOriginalPrice: number;
+  totalSavings: number;
+  requiresDoubleConfirm: boolean;
+  doubleConfirmReason?: string;
+  pointsBlocked: boolean;
+  pointsBlockedReason?: string;
+  bufferMinutes: number;
+  scheduledItems: ScheduledBookingItem[];
+}

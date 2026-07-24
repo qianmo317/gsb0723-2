@@ -417,3 +417,49 @@ export const mockWaitList = (customerIds: string[], serviceIds: string[]) => {
   }
   return waitList;
 };
+
+export const mockCustomerPackages = (
+  customerIds: string[],
+  packages: Array<{ id: string; validityDays: number }>,
+  packageItems: Array<{ id: string; packageId: string; serviceId: string; count: number }>
+) => {
+  const customerPackages = [];
+  const packageMap = new Map(packages.map(p => [p.id, p]));
+
+  customerIds.forEach((customerId) => {
+    if (Math.random() > 0.5) {
+      const pkg = packages[Random.integer(0, packages.length - 1)];
+      const pkgData = packageMap.get(pkg.id);
+      const items = packageItems.filter(pi => pi.packageId === pkg.id);
+
+      const purchaseDate = new Date();
+      purchaseDate.setDate(purchaseDate.getDate() - Random.integer(1, 30));
+      const expireDate = new Date(purchaseDate);
+      expireDate.setDate(expireDate.getDate() + (pkgData?.validityDays || 90));
+
+      const remainingItems = items.map(item => {
+        const used = Random.integer(0, item.count);
+        return {
+          serviceId: item.serviceId,
+          totalCount: item.count,
+          usedCount: used,
+          remainingCount: item.count - used
+        };
+      });
+
+      const allExhausted = remainingItems.every(ri => ri.remainingCount === 0);
+      const isExpired = expireDate.getTime() < Date.now();
+
+      customerPackages.push({
+        id: `CP${String(customerPackages.length + 1).padStart(6, '0')}`,
+        customerId,
+        packageId: pkg.id,
+        purchaseDate: purchaseDate.toISOString().split('T')[0],
+        expireDate: expireDate.toISOString().split('T')[0],
+        remainingItems,
+        status: isExpired ? 'expired' : allExhausted ? 'exhausted' : 'active'
+      });
+    }
+  });
+  return customerPackages;
+};

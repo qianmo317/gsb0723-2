@@ -15,7 +15,8 @@ import type {
   Review,
   Attendance,
   Commission,
-  WaitList
+  WaitList,
+  CustomerPackage
 } from '../types';
 import {
   mockCustomers,
@@ -32,7 +33,8 @@ import {
   mockReviews,
   mockAttendance,
   mockCommissions,
-  mockWaitList
+  mockWaitList,
+  mockCustomerPackages
 } from '../mock';
 
 interface AppState {
@@ -51,6 +53,7 @@ interface AppState {
   attendance: Attendance[];
   commissions: Commission[];
   waitList: WaitList[];
+  customerPackages: CustomerPackage[];
   initialized: boolean;
 }
 
@@ -66,6 +69,9 @@ const loadState = (): AppState => {
         const b64 = firstCustomer.avatar.replace('data:image/svg+xml;base64,', '');
         try {
           atob(b64);
+          if (!saved.customerPackages) {
+            saved.customerPackages = mockCustomerPackages(saved.customers.map(c => c.id), saved.packages, saved.packageItems);
+          }
           return saved;
         } catch (e) {
           console.log('Detected corrupted data, regenerating...');
@@ -101,6 +107,7 @@ const loadState = (): AppState => {
     attendance: mockAttendance(employeeIds),
     commissions: mockCommissions(employeeIds),
     waitList: mockWaitList(customerIds, serviceIds),
+    customerPackages: mockCustomerPackages(customerIds, packages, mockPackageItems(packages)),
     initialized: true
   };
 };
@@ -237,6 +244,38 @@ const appSlice = createSlice({
         else if (membership.totalSpent > 5000) membership.level = 'silver';
       }
       saveState(state);
+    },
+    addCustomerPackage: (state, action: PayloadAction<CustomerPackage>) => {
+      state.customerPackages.unshift(action.payload);
+      saveState(state);
+    },
+    updateCustomerPackage: (state, action: PayloadAction<CustomerPackage>) => {
+      const index = state.customerPackages.findIndex(cp => cp.id === action.payload.id);
+      if (index !== -1) {
+        state.customerPackages[index] = action.payload;
+        saveState(state);
+      }
+    },
+    consumePackageSession: (state, action: PayloadAction<{ customerPackageId: string; serviceId: string }>) => {
+      const cp = state.customerPackages.find(p => p.id === action.payload.customerPackageId);
+      if (cp) {
+        const item = cp.remainingItems.find(ri => ri.serviceId === action.payload.serviceId);
+        if (item && item.remainingCount > 0) {
+          item.usedCount += 1;
+          item.remainingCount -= 1;
+          if (cp.remainingItems.every(ri => ri.remainingCount === 0)) {
+            cp.status = 'exhausted';
+          }
+          saveState(state);
+        }
+      }
+    },
+    deductPoints: (state, action: PayloadAction<{ customerId: string; points: number }>) => {
+      const membership = state.memberships.find(m => m.customerId === action.payload.customerId);
+      if (membership && membership.points >= action.payload.points) {
+        membership.points -= action.payload.points;
+        saveState(state);
+      }
     }
   }
 });
@@ -263,7 +302,11 @@ export const {
   addWaitList,
   updateWaitList,
   deleteWaitList,
-  addServiceRecord
+  addServiceRecord,
+  addCustomerPackage,
+  updateCustomerPackage,
+  consumePackageSession,
+  deductPoints
 } = appSlice.actions;
 
 export const store = configureStore({

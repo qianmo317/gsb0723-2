@@ -7,15 +7,10 @@ import {
   Button,
   Space,
   Modal,
-  Form,
-  Select,
-  DatePicker,
-  TimePicker,
-  message,
   List,
   Avatar,
-  Tooltip,
-  Input
+  message,
+  Badge
 } from 'antd';
 import {
   PlusOutlined,
@@ -23,22 +18,23 @@ import {
   ClockCircleOutlined,
   DeleteOutlined,
   CheckCircleOutlined,
-  UserOutlined
+  UserOutlined,
+  ThunderboltOutlined
 } from '@ant-design/icons';
 import Calendar from 'react-calendar';
 import { useSelector, useDispatch } from 'react-redux';
 import type { RootState } from '../../store';
-import { addAppointment, updateAppointment, deleteAppointment, addWaitList } from '../../store';
-import type { Appointment, WaitList } from '../../types';
-import { formatDate, formatTime, formatCurrency, generateId, getStatusText, getStatusColor } from '../../utils/format';
+import { updateAppointment, deleteAppointment } from '../../store';
+import type { Appointment } from '../../types';
+import { formatDate, formatTime, getStatusText, getStatusColor } from '../../utils/format';
+import SmartBookingModal from '../../components/SmartBookingModal';
 import dayjs from 'dayjs';
 
 const AppointmentCalendar: React.FC = () => {
   const dispatch = useDispatch();
   const state = useSelector((state: RootState) => state.app);
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [form] = Form.useForm();
+  const [isBookingOpen, setIsBookingOpen] = useState(false);
 
   const selectedDateStr = dayjs(selectedDate).format('YYYY-MM-DD');
 
@@ -64,79 +60,6 @@ const AppointmentCalendar: React.FC = () => {
     return null;
   };
 
-  const handleAdd = () => {
-    form.resetFields();
-    form.setFieldsValue({
-      date: dayjs(selectedDate),
-      source: 'wechat',
-    });
-    setIsModalOpen(true);
-  };
-
-  const handleSubmit = async () => {
-    try {
-      const values = await form.validateFields();
-      const startTime = dayjs(values.date)
-        .hour(values.time.hour())
-        .minute(values.time.minute());
-      const service = state.services.find((s) => s.id === values.serviceId);
-      const duration = service?.duration || 60;
-      const endTime = startTime.add(duration, 'minute');
-
-      const newAppointment: Appointment = {
-        id: generateId(),
-        customerId: values.customerId,
-        serviceId: values.serviceId,
-        employeeId: values.employeeId,
-        startTime: startTime.toISOString(),
-        endTime: endTime.toISOString(),
-        duration,
-        status: 'confirmed',
-        source: values.source,
-        notes: values.notes || '',
-        reminderSent: false,
-      };
-
-      const hasConflict = state.appointments.some((a) => {
-        if (a.employeeId !== values.employeeId || a.status === 'cancelled') return false;
-        const aStart = new Date(a.startTime).getTime();
-        const aEnd = new Date(a.endTime).getTime();
-        const newStart = startTime.valueOf();
-        const newEnd = endTime.valueOf();
-        return (newStart >= aStart && newStart < aEnd) || (newEnd > aStart && newEnd <= aEnd);
-      });
-
-      if (hasConflict) {
-        Modal.confirm({
-          title: '时段冲突',
-          content: '该美容师此时段已有预约，是否加入候补队列？',
-          okText: '加入候补',
-          cancelText: '取消',
-          onOk: () => {
-            const waitItem: WaitList = {
-              id: generateId(),
-              customerId: values.customerId,
-              serviceId: values.serviceId,
-              preferredDate: dayjs(values.date).toISOString(),
-              addedAt: new Date().toISOString(),
-              status: 'waiting',
-            };
-            dispatch(addWaitList(waitItem));
-            message.success('已加入候补队列');
-          },
-        });
-        setIsModalOpen(false);
-        return;
-      }
-
-      dispatch(addAppointment(newAppointment));
-      message.success('预约成功');
-      setIsModalOpen(false);
-    } catch {
-      // validation error
-    }
-  };
-
   const handleStatusChange = (appointment: Appointment, newStatus: string) => {
     dispatch(
       updateAppointment({
@@ -158,15 +81,6 @@ const AppointmentCalendar: React.FC = () => {
     });
   };
 
-  const availableEmployees = (serviceId: string) => {
-    return state.employees.filter(
-      (e) =>
-        (e.role === 'beautician' || e.role === 'technician') &&
-        e.status === 'active' &&
-        (e.skills.includes(serviceId) || serviceId === undefined)
-    );
-  };
-
   return (
     <div>
       <div className="page-header">
@@ -176,8 +90,8 @@ const AppointmentCalendar: React.FC = () => {
             {formatDate(selectedDate)} 预约管理
           </p>
         </div>
-        <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd}>
-          新增预约
+        <Button type="primary" icon={<ThunderboltOutlined />} onClick={() => setIsBookingOpen(true)}>
+          智能预约
         </Button>
       </div>
 
@@ -198,7 +112,18 @@ const AppointmentCalendar: React.FC = () => {
             title={`${formatDate(selectedDate)} 预约详情`}
             bordered={false}
             extra={
-              <Tag color="blue">{dayAppointments.length} 个预约</Tag>
+              <Space>
+                <Tag color="blue">{dayAppointments.length} 个预约</Tag>
+                <Button
+                  size="small"
+                  type="primary"
+                  ghost
+                  icon={<PlusOutlined />}
+                  onClick={() => setIsBookingOpen(true)}
+                >
+                  新增
+                </Button>
+              </Space>
             }
           >
             {dayAppointments.length > 0 ? (
@@ -206,6 +131,7 @@ const AppointmentCalendar: React.FC = () => {
                 const customer = state.customers.find((c) => c.id === appointment.customerId);
                 const service = state.services.find((s) => s.id === appointment.serviceId);
                 const employee = state.employees.find((e) => e.id === appointment.employeeId);
+                const membership = state.memberships.find(m => m.customerId === appointment.customerId);
 
                 return (
                   <div
@@ -215,9 +141,20 @@ const AppointmentCalendar: React.FC = () => {
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                       <div style={{ flex: 1 }}>
                         <Space>
-                          <Avatar size={32} src={customer?.avatar} icon={<UserOutlined />} />
+                          <Badge
+                            count={membership?.level === 'diamond' ? '钻' : membership?.level === 'platinum' ? '铂' : 0}
+                            size="small"
+                            style={{ backgroundColor: membership?.level === 'diamond' ? '#C9A86C' : '#B8B8B8' }}
+                          >
+                            <Avatar size={32} src={customer?.avatar} icon={<UserOutlined />} />
+                          </Badge>
                           <div>
-                            <div style={{ fontWeight: 500 }}>{customer?.name}</div>
+                            <div style={{ fontWeight: 500 }}>
+                              {customer?.name}
+                              {appointment.status === 'pending' && (
+                                <Tag color="orange" style={{ marginLeft: 4, fontSize: 10 }}>待确认</Tag>
+                              )}
+                            </div>
                             <div style={{ fontSize: 12, color: '#8c8c8c' }}>
                               {service?.name} · {employee?.name}
                             </div>
@@ -236,6 +173,11 @@ const AppointmentCalendar: React.FC = () => {
                         </Tag>
                       </Space>
                     </div>
+                    {appointment.notes && (
+                      <div style={{ fontSize: 12, color: '#8c8c8c', marginTop: 4, paddingLeft: 40 }}>
+                        {appointment.notes}
+                      </div>
+                    )}
                     <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 8 }}>
                       {appointment.status === 'confirmed' && (
                         <Space>
@@ -249,10 +191,36 @@ const AppointmentCalendar: React.FC = () => {
                           <Button
                             type="link"
                             size="small"
+                            onClick={() => handleStatusChange(appointment, 'no_show')}
+                          >
+                            爽约
+                          </Button>
+                          <Button
+                            type="link"
+                            size="small"
                             danger
                             onClick={() => handleDelete(appointment.id)}
                           >
                             <DeleteOutlined /> 取消
+                          </Button>
+                        </Space>
+                      )}
+                      {appointment.status === 'pending' && (
+                        <Space>
+                          <Button
+                            type="link"
+                            size="small"
+                            onClick={() => handleStatusChange(appointment, 'confirmed')}
+                          >
+                            <CheckCircleOutlined /> 确认
+                          </Button>
+                          <Button
+                            type="link"
+                            size="small"
+                            danger
+                            onClick={() => handleDelete(appointment.id)}
+                          >
+                            <DeleteOutlined /> 拒绝
                           </Button>
                         </Space>
                       )}
@@ -264,6 +232,14 @@ const AppointmentCalendar: React.FC = () => {
               <div className="empty-state">
                 <CalendarOutlined style={{ fontSize: 48, color: '#d9d9d9' }} />
                 <div style={{ marginTop: 16 }}>当日暂无预约</div>
+                <Button
+                  type="primary"
+                  icon={<PlusOutlined />}
+                  style={{ marginTop: 12 }}
+                  onClick={() => setIsBookingOpen(true)}
+                >
+                  立即预约
+                </Button>
               </div>
             )}
           </Card>
@@ -298,99 +274,11 @@ const AppointmentCalendar: React.FC = () => {
         </Col>
       </Row>
 
-      <Modal
-        title="新增预约"
-        open={isModalOpen}
-        onOk={handleSubmit}
-        onCancel={() => setIsModalOpen(false)}
-        okText="确认预约"
-        cancelText="取消"
-        width={500}
-      >
-        <Form form={form} layout="vertical">
-          <Form.Item
-            name="customerId"
-            label="选择顾客"
-            rules={[{ required: true, message: '请选择顾客' }]}
-          >
-            <Select
-              placeholder="搜索并选择顾客"
-              showSearch
-              optionFilterProp="label"
-              options={state.customers.map((c) => ({
-                value: c.id,
-                label: `${c.name} - ${c.phone}`,
-              }))}
-            />
-          </Form.Item>
-          <Form.Item
-            name="serviceId"
-            label="选择项目"
-            rules={[{ required: true, message: '请选择项目' }]}
-          >
-            <Select
-              placeholder="请选择项目"
-              options={state.services.map((s) => ({
-                value: s.id,
-                label: `${s.name} - ${formatCurrency(s.price)} (${s.duration}分钟)`,
-              }))}
-            />
-          </Form.Item>
-          <Form.Item
-            name="employeeId"
-            label="选择美容师"
-            rules={[{ required: true, message: '请选择美容师' }]}
-          >
-            <Select
-              placeholder="请选择美容师"
-              options={state.employees
-                .filter((e) => (e.role === 'beautician' || e.role === 'technician') && e.status === 'active')
-                .map((e) => ({
-                  value: e.id,
-                  label: `${e.name} - ${getStatusText(e.role)}`,
-                }))}
-            />
-          </Form.Item>
-          <Row gutter={16}>
-            <Col span={12}>
-              <Form.Item
-                name="date"
-                label="选择日期"
-                rules={[{ required: true, message: '请选择日期' }]}
-              >
-                <DatePicker style={{ width: '100%' }} disabledDate={(d) => d && d.isBefore(dayjs().startOf('day'))} />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item
-                name="time"
-                label="选择时间"
-                rules={[{ required: true, message: '请选择时间' }]}
-              >
-                <TimePicker
-                  style={{ width: '100%' }}
-                  format="HH:mm"
-                  minuteStep={15}
-                  disabledHours={() => [0, 1, 2, 3, 4, 5, 6, 7, 8, 21, 22, 23]}
-                />
-              </Form.Item>
-            </Col>
-          </Row>
-          <Form.Item name="source" label="预约来源" initialValue="wechat">
-            <Select
-              options={[
-                { value: 'phone', label: '电话' },
-                { value: 'wechat', label: '微信' },
-                { value: 'walk_in', label: '到店' },
-                { value: 'online', label: '线上' },
-              ]}
-            />
-          </Form.Item>
-          <Form.Item name="notes" label="备注">
-            <Input.TextArea rows={2} placeholder="请输入备注" />
-          </Form.Item>
-        </Form>
-      </Modal>
+      <SmartBookingModal
+        open={isBookingOpen}
+        onClose={() => setIsBookingOpen(false)}
+        initialDate={selectedDate}
+      />
     </div>
   );
 };
