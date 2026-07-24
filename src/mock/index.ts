@@ -417,3 +417,64 @@ export const mockWaitList = (customerIds: string[], serviceIds: string[]) => {
   }
   return waitList;
 };
+
+// 顾客持有的套餐（含每项目剩余次数与到期日），用于套餐拆单/抵扣校验
+export const mockCustomerPackages = (
+  customerIds: string[],
+  packages: ReturnType<typeof mockPackages>,
+  packageItems: ReturnType<typeof mockPackageItems>
+) => {
+  const customerPackages = [];
+  // 让前若干位顾客各持有 1-2 个套餐，覆盖“次数充足 / 次数不足 / 已过期”多种情形
+  const holderCount = Math.min(20, customerIds.length);
+
+  for (let i = 0; i < holderCount; i++) {
+    const customerId = customerIds[i];
+    const pkgCount = Random.integer(1, 2);
+    const usedPkgs = new Set<string>();
+
+    for (let j = 0; j < pkgCount; j++) {
+      const pkg = packages[Random.integer(0, packages.length - 1)];
+      if (usedPkgs.has(pkg.id)) continue;
+      usedPkgs.add(pkg.id);
+
+      const items = packageItems
+        .filter((pi) => pi.packageId === pkg.id)
+        .map((pi) => {
+          // 剩余次数在 0..count 之间随机，制造“次数不够需拆单”的场景
+          const remaining = Random.integer(0, pi.count);
+          return {
+            serviceId: pi.serviceId,
+            totalCount: pi.count,
+            remainingCount: remaining
+          };
+        });
+
+      // 约 1/4 的套餐设为已过期，触发“过期自动拆单”
+      const expired = Math.random() < 0.25;
+      const purchase = new Date();
+      const expire = new Date();
+      if (expired) {
+        purchase.setDate(purchase.getDate() - pkg.validityDays - Random.integer(1, 30));
+        expire.setDate(expire.getDate() - Random.integer(1, 20));
+      } else {
+        purchase.setDate(purchase.getDate() - Random.integer(1, pkg.validityDays / 2));
+        expire.setDate(expire.getDate() + Random.integer(10, pkg.validityDays));
+      }
+
+      const allUsedUp = items.every((it) => it.remainingCount === 0);
+      const status = expired ? 'expired' : allUsedUp ? 'used_up' : 'active';
+
+      customerPackages.push({
+        id: `CP${String(customerPackages.length + 1).padStart(6, '0')}`,
+        customerId,
+        packageId: pkg.id,
+        purchaseDate: purchase.toISOString().split('T')[0],
+        expireDate: expire.toISOString().split('T')[0],
+        status,
+        items
+      });
+    }
+  }
+  return customerPackages;
+};

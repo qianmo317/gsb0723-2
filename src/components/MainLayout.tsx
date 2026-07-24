@@ -9,7 +9,8 @@ import {
   UserOutlined,
   LogoutOutlined,
   SettingOutlined,
-  BellOutlined
+  BellOutlined,
+  ThunderboltOutlined
 } from '@ant-design/icons';
 import { useNavigate, useLocation } from 'react-router-dom';
 
@@ -43,6 +44,11 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
       key: '/appointments',
       icon: <CalendarOutlined />,
       label: '预约排期',
+    },
+    {
+      key: '/smart-booking',
+      icon: <ThunderboltOutlined />,
+      label: '智能预约',
     },
     {
       key: '/schedules',

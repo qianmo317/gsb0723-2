@@ -85,6 +85,35 @@ export interface PackageItem {
   count: number;
 }
 
+export interface CustomerPackageItem {
+  serviceId: string;
+  totalCount: number;
+  remainingCount: number;
+}
+
+export interface CustomerPackage {
+  id: string;
+  customerId: string;
+  packageId: string;
+  purchaseDate: string;
+  expireDate: string;
+  status: 'active' | 'expired' | 'used_up';
+  items: CustomerPackageItem[];
+}
+
+/** 预约的计费快照：记录确认预约时锁定的抵扣方案与应收金额，供后续收款对账 */
+export interface AppointmentBilling {
+  plan: 'package' | 'points'; // 采用的抵扣方案（互斥）
+  membershipDiscount: number; // 会员折扣率（如 0.95）
+  listPrice: number; // 该项目单次原价
+  coveredByPackage: boolean; // 是否由套餐抵扣（免现金）
+  customerPackageId?: string; // 命中的顾客套餐
+  pointsUsed: number; // 该项目分摊使用的积分
+  pointsDeductAmount: number; // 该项目分摊的积分抵扣金额
+  finalAmount: number; // 该项目最终应收金额
+  settled?: boolean; // 是否已实际扣减套餐次数/积分（避免重复扣减或重复回退）
+}
+
 export interface Appointment {
   id: string;
   customerId: string;
@@ -97,6 +126,7 @@ export interface Appointment {
   source: 'phone' | 'wechat' | 'walk_in' | 'online';
   notes: string;
   reminderSent: boolean;
+  billing?: AppointmentBilling;
 }
 
 export interface WaitList {
